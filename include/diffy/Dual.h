@@ -1,31 +1,12 @@
 #pragma once
 
-#include <concepts>
+#include "Concepts.h"
+
 #include <format>
 #include <iosfwd>
-#include <type_traits>
 
 namespace diffy
 {
-
-template<typename T>
-concept Numeric = std::floating_point<T> || std::integral<T>;
-
-template<Numeric T>
-class Dual;
-
-template<typename T>
-struct isDual : std::false_type
-{
-};
-
-template<Numeric T>
-struct isDual<Dual<T>> : std::true_type
-{
-};
-
-template<typename T>
-constexpr bool is_dual_v = isDual<T>::value;
 
 /// @brief A class representing dual numbers for automatic differentiation.
 template<Numeric T>
@@ -217,5 +198,6 @@ std::ostream& operator<<(std::ostream& os, const Dual<T>& dual)
 {
     return os << std::format("({}, {})", dual.value(), dual.derivative());
 }
+
 
 } // namespace diffy
