@@ -1,6 +1,8 @@
 #pragma once
 
 #include <concepts>
+#include <format>
+#include <iosfwd>
 #include <type_traits>
 
 namespace diffy
@@ -48,73 +50,78 @@ public:
     constexpr Dual operator+() const { return *this; }
     constexpr Dual operator-() const { return Dual(-mValue, -mDeriv); }
 
-    template<Numeric U>
-    constexpr Dual& operator+=(const Dual<U>& other)
+    constexpr Dual& operator+=(const Dual& other)
     {
-        mValue += static_cast<T>(other.mValue);
-        mDeriv += static_cast<T>(other.mDeriv);
+        mValue += other.mValue;
+        mDeriv += other.mDeriv;
         return *this;
     }
 
-    template<Numeric U>
-    constexpr Dual& operator-=(const Dual<U>& other)
+    constexpr Dual& operator-=(const Dual& other)
     {
-        mValue -= static_cast<T>(other.mValue);
-        mDeriv -= static_cast<T>(other.mDeriv);
+        mValue -= other.mValue;
+        mDeriv -= other.mDeriv;
         return *this;
     }
 
-    template<Numeric U>
-    constexpr Dual& operator*=(const Dual<U>& other)
+    constexpr Dual& operator*=(const Dual& other)
     {
-        const T otherValue = static_cast<T>(other.mValue);
-        const T otherDeriv = static_cast<T>(other.mDeriv);
-        mDeriv = mDeriv * otherValue + mValue * otherDeriv;
-        mValue *= otherValue;
+        mDeriv = mDeriv * other.mValue + mValue * other.mDeriv;
+        mValue *= other.mValue;
         return *this;
     }
 
-    template<Numeric U>
-    constexpr Dual& operator/=(const Dual<U>& other)
+    constexpr Dual& operator/=(const Dual& other)
     {
-        const T otherValue = static_cast<T>(other.mValue);
-        const T otherDeriv = static_cast<T>(other.mDeriv);
-        mDeriv = (mDeriv * otherValue - mValue * otherDeriv) / (otherValue * otherValue);
-        mValue /= otherValue;
+        mDeriv = (mDeriv * other.mValue - mValue * other.mDeriv) / (other.mValue * other.mValue);
+        mValue /= other.mValue;
         return *this;
     }
 
-    // template<Numeric U>
-    // constexpr Dual& operator+=(U scalar)
-    // {
-    //     mValue += static_cast<T>(scalar);
-    //     return *this;
-    // }
+    constexpr Dual& operator+=(T scalar)
+    {
+        mValue += scalar;
+        return *this;
+    }
 
-    // constexpr Dual& operator-=(T scalar)
-    // {
-    //     mValue -= scalar;
-    //     return *this;
-    // }
-    //
-    // constexpr Dual& operator*=(T scalar)
-    // {
-    //     mValue *= scalar;
-    //     mDeriv *= scalar;
-    //     return *this;
-    // }
-    //
-    // constexpr Dual& operator/=(T scalar)
-    // {
-    //     mValue /= scalar;
-    //     mDeriv /= scalar;
-    //     return *this;
-    // }
+    constexpr Dual& operator-=(T scalar)
+    {
+        mValue -= scalar;
+        return *this;
+    }
+
+    constexpr Dual& operator*=(T scalar)
+    {
+        mValue *= scalar;
+        mDeriv *= scalar;
+        return *this;
+    }
+
+    constexpr Dual& operator/=(T scalar)
+    {
+        mValue /= scalar;
+        mDeriv /= scalar;
+        return *this;
+    }
 
 private:
     T mValue = 0;
     T mDeriv = 0;
 };
+
+/// @brief Create a variable (dual number with derivative = 1)
+template<Numeric T>
+constexpr Dual<T> toVariable(T value)
+{
+    return Dual<T>(value, T{1});
+}
+
+/// @brief Create a constant (dual number with derivative = 0)
+template<Numeric T>
+constexpr Dual<T> toConstant(T value)
+{
+    return Dual<T>(value, T{0});
+}
 
 template<Numeric T>
 constexpr bool operator==(const Dual<T>& lhs, const Dual<T>& rhs)
@@ -150,79 +157,65 @@ constexpr Dual<T> operator/(const Dual<T>& lhs, const Dual<T>& rhs)
     return tmp /= rhs;
 }
 
-// template<Numeric T, Numeric U>
-// constexpr Dual<T> operator+(const Dual<T>& dual, U scalar)
-// {
-//     auto tmp = dual;
-//     return tmp += scalar;
-// }
-//
-// template<Numeric T, Numeric U>
-// constexpr Dual<T> operator+(U scalar, const Dual<T>& dual)
-// {
-//     return dual + scalar;
-// }
-//
-// template<Numeric T, Numeric U>
-// constexpr Dual<T> operator-(const Dual<T>& dual, U scalar)
-// {
-//     auto tmp = dual;
-//     return tmp -= scalar;
-// }
-//
-// template<Numeric T, Numeric U>
-// constexpr Dual<T> operator-(U scalar, const Dual<T>& dual)
-// {
-//     auto tmp = scalar;
-//     return tmp -= dual;
-// }
-//
-// template<Numeric T, Numeric U>
-// constexpr Dual<T> operator*(const Dual<T>& dual, U scalar)
-// {
-//     auto tmp = dual;
-//     return tmp *= scalar;
-// }
-//
-// template<Numeric T, Numeric U>
-// constexpr Dual<T> operator*(U scalar, const Dual<T>& dual)
-// {
-//     return dual * scalar;
-// }
-//
-// template<Numeric T, Numeric U>
-// constexpr Dual<T> operator/(const Dual<T>& dual, U scalar)
-// {
-//     auto tmp = dual;
-//     return tmp /= scalar;
-// }
-//
-// template<Numeric T, Numeric U>
-// constexpr Dual<T> operator/(U scalar, const Dual<T>& dual)
-// {
-//     auto tmp = scalar;
-//     return tmp / dual;
-// }
-
-// // Stream output
-// template<Numeric T>
-// std::ostream& operator<<(std::ostream& os, const Dual<T>& dual) {
-//     return os << std::format("({}, {})", dual.value(), dual.derivative());
-// }
-//
-
-/// @brief Create a variable (dual number with derivative = 1)
 template<Numeric T>
-constexpr Dual<T> toVariable(T value)
+constexpr Dual<T> operator+(const Dual<T>& dual, T scalar)
 {
-    return Dual<T>(value, T{1});
+    auto tmp = dual;
+    return tmp += scalar;
 }
 
-/// @brief Create a constant (dual number with derivative = 0)
 template<Numeric T>
-constexpr Dual<T> toConstant(T value)
+constexpr Dual<T> operator+(T scalar, const Dual<T>& dual)
 {
-    return Dual<T>(value, T{0});
+    return dual + scalar;
+}
+
+template<Numeric T>
+constexpr Dual<T> operator-(const Dual<T>& dual, T scalar)
+{
+    auto tmp = dual;
+    return tmp -= scalar;
+}
+
+template<Numeric T>
+constexpr Dual<T> operator-(T scalar, const Dual<T>& dual)
+{
+    auto tmp = toConstant(scalar);
+    return tmp -= dual;
+}
+
+template<Numeric T>
+constexpr Dual<T> operator*(const Dual<T>& dual, T scalar)
+{
+    auto tmp = dual;
+    return tmp *= scalar;
+}
+
+template<Numeric T>
+constexpr Dual<T> operator*(T scalar, const Dual<T>& dual)
+{
+    return dual * scalar;
+}
+
+template<Numeric T>
+constexpr Dual<T> operator/(const Dual<T>& dual, T scalar)
+{
+    auto tmp = dual;
+    return tmp /= scalar;
+}
+
+template<Numeric T>
+constexpr Dual<T> operator/(T scalar, const Dual<T>& dual)
+{
+    auto tmp = toConstant(scalar);
+    return tmp / dual;
+}
+
+// Stream output
+template<Numeric T>
+std::ostream& operator<<(std::ostream& os, const Dual<T>& dual)
+{
+    return os << std::format("({}, {})", dual.value(), dual.derivative());
 }
 
 } // namespace diffy

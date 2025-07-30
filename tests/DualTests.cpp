@@ -70,45 +70,149 @@ TEST_SUITE("Dual number tests")
         CHECK(result == expected);
     }
 
-    TEST_CASE("Binary operations")
+    TEST_CASE("Binary operations with dual numbers")
     {
         constexpr Dual<double> d1(3.0, 2.0);
         constexpr Dual<double> d2(-4.0, 1.0);
-        Dual<double> result1, result2, expected;
+        Dual<double> result1, expected;
 
         SUBCASE("Addition")
         {
             result1 = d1 + d2;
-            result2 = d1;
-            result2 += d2;
+            expected = Dual<double>(-1.0, 3.0);
+        }
+
+        SUBCASE("Accumulative addition")
+        {
+            result1 = d1;
+            result1 += d2;
             expected = Dual<double>(-1.0, 3.0);
         }
 
         SUBCASE("Subtraction")
         {
             result1 = d1 - d2;
-            result2 = d1;
-            result2 -= d2;
+            expected = Dual<double>(7.0, 1.0);
+        }
+
+        SUBCASE("Accumulative subtraction")
+        {
+            result1 = d1;
+            result1 -= d2;
             expected = Dual<double>(7.0, 1.0);
         }
 
         SUBCASE("Multiplication")
         {
             result1 = d1 * d2;
-            result2 = d1;
-            result2 *= d2;
+            expected = Dual<double>(-12.0, -5.0);
+        }
+
+        SUBCASE("Accumulative multiplication")
+        {
+            result1 = d1;
+            result1 *= d2;
             expected = Dual<double>(-12.0, -5.0);
         }
 
         SUBCASE("Division")
         {
             result1 = d1 / d2;
-            result2 = d1;
-            result2 /= d2;
+            expected = Dual<double>(-0.75, -0.6875);
+        }
+
+        SUBCASE("Accumulative division")
+        {
+            result1 = d1;
+            result1 /= d2;
             expected = Dual<double>(-0.75, -0.6875);
         }
 
         CHECK(result1 == expected);
-        CHECK(result2 == expected);
+    }
+
+    TEST_CASE("Binary operations with scalars")
+    {
+        constexpr Dual<double> d1(4.0, 2.0);
+        double scalar = 5.0;
+        Dual<double> result1, expected;
+
+        SUBCASE("Addition with scalar on the right")
+        {
+            result1 = d1 + scalar;
+            expected = Dual<double>(9.0, 2.0);
+        }
+
+        SUBCASE("Addition with scalar on the left")
+        {
+            result1 = scalar + d1;
+            expected = Dual<double>(9.0, 2.0);
+        }
+
+        SUBCASE("Accumulative addition")
+        {
+            result1 = d1;
+            result1 += scalar;
+            expected = Dual<double>(9.0, 2.0);
+        }
+
+        SUBCASE("Subtraction with scalar on the right")
+        {
+            result1 = d1 - scalar;
+            expected = Dual<double>(-1.0, 2.0);
+        }
+
+        SUBCASE("Subtraction with scalar on the left")
+        {
+            result1 = scalar - d1;
+            expected = Dual<double>(1.0, -2.0);
+        }
+
+        SUBCASE("Accumulative subtraction")
+        {
+            result1 = d1;
+            result1 -= scalar;
+            expected = Dual<double>(-1.0, 2.0);
+        }
+
+        SUBCASE("Multiplication with scalar on the right")
+        {
+            result1 = d1 * scalar;
+            expected = Dual<double>(20.0, 10.0);
+        }
+
+        SUBCASE("Multiplication with scalar on the left")
+        {
+            result1 = scalar * d1;
+            expected = Dual<double>(20.0, 10.0);
+        }
+
+        SUBCASE("Accumulative multiplication")
+        {
+            result1 = d1;
+            result1 *= scalar;
+            expected = Dual<double>(20.0, 10.0);
+        }
+
+        SUBCASE("Division with scalar on the right")
+        {
+            result1 = d1 / scalar;
+            expected = Dual<double>(0.8, 0.4);
+        }
+
+        SUBCASE("Division with scalar on the left")
+        {
+            result1 = scalar / d1;
+            expected = Dual<double>(1.25, -0.625);
+        }
+
+        SUBCASE("Accumulative division")
+        {
+            result1 = d1;
+            result1 /= scalar;
+            expected = Dual<double>(0.8, 0.4);
+        }
+
+        CHECK(result1 == expected);
     }
 }
