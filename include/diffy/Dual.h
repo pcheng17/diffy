@@ -3,7 +3,7 @@
 #include "Concepts.h"
 
 #include <format>
-#include <iosfwd>
+#include <ostream>
 
 namespace diffy
 {
