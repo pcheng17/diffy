@@ -66,6 +66,7 @@ endif()
 add_executable(tests
     tests/main.cpp
     tests/DualTests.cpp
+    tests/DualMathTests.cpp
 )
 
 target_link_libraries(tests
