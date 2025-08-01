@@ -1,5 +1,6 @@
 #include <doctest/doctest.h>
 #include <diffy/DualMath.h>
+#include <vector>
 
 using namespace diffy;
 
