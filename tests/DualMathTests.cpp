@@ -11,7 +11,7 @@ TEST_SUITE("Dual math tests")
         Dual<double> result, expected;
 
         // clang-format off
-        const std::vector<std::pair<double, Dual<double>>> expectedResultsPairs = {
+        const std::vector<std::pair<double, Dual<double>>> testCases = {
             {0.0,        Dual<double>(0.0, 1.0)},
             {M_PI / 6,   Dual<double>(0.5, std::sqrt(3) / 2.0)},
             {M_PI / 4,   Dual<double>(std::sqrt(2) / 2, std::sqrt(2) / 2)},
@@ -23,7 +23,7 @@ TEST_SUITE("Dual math tests")
         };
         // clang-format on
 
-        for (const auto& [value, expectedResult] : expectedResultsPairs)
+        for (const auto& [value, expectedResult] : testCases)
         {
             x = toVariable(value);
             result = sin(x);
